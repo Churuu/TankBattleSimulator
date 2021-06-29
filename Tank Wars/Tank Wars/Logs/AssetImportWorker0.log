@@ -3443,3 +3443,8 @@ System memory in use after: 183.0 MB.
 Unloading 6 unused Assets to reduce memory usage. Loaded Objects now: 2722.
 Total: 2.289100 ms (FindLiveObjects: 0.334400 ms CreateObjectMapping: 0.055800 ms MarkObjects: 1.878400 ms  DeleteObjects: 0.019200 ms)
 
+========================================================================
+Received Prepare
+Registering precompiled user dll's ...
+Registered in 0.001083 seconds.
+Begin MonoManager ReloadAssembly
