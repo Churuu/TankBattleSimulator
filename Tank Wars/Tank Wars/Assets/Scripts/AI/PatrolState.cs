@@ -54,7 +54,7 @@ public class PatrolState : ITankState
         {
             Vector3 newPatrolPosition = GetRandomPositionInsideBox(Vector3.zero, parent.patrolSize);
 
-            parent.agent.SetDestination(newPatrolPosition);
+            parent.TryToMoveTank(newPatrolPosition);
             
             //Passive healing? Maybe do it another way?
             parent.tankHealth++;

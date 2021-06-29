@@ -65,7 +65,7 @@ public class AttackState : ITankState
             parent.PlaySound(parent.audioClips.shooting, parent.transform.position);
             parent.PlaySound(parent.audioClips.hit, parent.transform.position);
             parent.InstaniateObject(parent.explosionEffect, hit.point);
-            hit.collider.GetComponent<StatePatternTank>().tankHealth--;
+            hit.collider.GetComponent<StatePatternTank>().tankHealth -= parent.tankDamage;
             timerDelta = Time.time + parent.shotCooldown;
         }
     }

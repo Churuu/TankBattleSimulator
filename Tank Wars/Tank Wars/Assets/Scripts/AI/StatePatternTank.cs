@@ -80,7 +80,7 @@ public class StatePatternTank : MonoBehaviour
         }
     }
 
-    public void MoveTank(Vector3 position)
+    void MoveTank(Vector3 position)
     {
         isRotating = false;
         agent.isStopped = false;
