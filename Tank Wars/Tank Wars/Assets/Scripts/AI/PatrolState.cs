@@ -33,14 +33,17 @@ public class PatrolState : ITankState
 
     public void ToAttackState()
     {
-        parent.currentState = parent.attackState;
-        parent.currentState.OnEnterState();
+        parent.SwitchCurrentState(parent.attackState);
     }
 
     public void ToChaseState()
     {
-        parent.currentState = parent.chaseState;
-        parent.currentState.OnEnterState();
+        parent.SwitchCurrentState(parent.chaseState);
+    }
+
+    public void ToEscapeState()
+    {
+        parent.SwitchCurrentState(parent.escapeState);
     }
 
     public void OnCollisionEnter(Collision other)
@@ -52,7 +55,7 @@ public class PatrolState : ITankState
     {
         if (Time.time > timerDelta && parent.agent.remainingDistance < 1.0f)
         {
-            Vector3 newPatrolPosition = GetRandomPositionInsideBox(Vector3.zero, parent.patrolSize);
+            Vector3 newPatrolPosition = parent.GetRandomPositionInsideBox(Vector3.zero, parent.patrolSize);
 
             parent.TryToMoveTank(newPatrolPosition);
             
@@ -69,16 +72,5 @@ public class PatrolState : ITankState
         {
             ToAttackState();
         }
-    }
-
-    Vector3 GetRandomPositionInsideBox(Vector3 center, Vector2 boxSize)
-    {
-        Vector3 randomPosition = new Vector3(
-            (Random.value - 0.5f) * boxSize.x,
-            0.0f,
-            (Random.value - 0.5f) * boxSize.y
-            );
-
-        return center + randomPosition;
     }
 }

@@ -1,12 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
 public class Camera_Controller : MonoBehaviour
 {
-
-    public Transform cameraTransform;
-
     public float normalSpeed;
     public float fastSpeed;
 
@@ -15,7 +13,9 @@ public class Camera_Controller : MonoBehaviour
 
     public float rotationAmount;
 
+    public bool isControllingTank = false;
 
+    public CinemachineVirtualCamera virtualCamera;
     
     Vector3 newPosition;
     Quaternion newRotation;
@@ -29,19 +29,22 @@ public class Camera_Controller : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        newPosition = transform.position;
-        newRotation = transform.rotation;
-        newZoom = cameraTransform.localPosition;
+        newPosition = virtualCamera.transform.position;
+        newRotation = virtualCamera.transform.rotation;
+        newZoom = virtualCamera.transform.position;
     }
 
     // Update is called once per frame
     void Update()
     {
         HandleMovementInput();
-
     }
     void HandleMovementInput()
     {
+        if (isControllingTank)
+            return;
+
+
         if (Input.GetKey(KeyCode.LeftShift))
         {
             movementSpeed = fastSpeed;
@@ -86,9 +89,9 @@ public class Camera_Controller : MonoBehaviour
         }
 
 
-        transform.position = Vector3.Lerp(transform.position, newPosition, Time.deltaTime * movementTime);
-        transform.rotation = Quaternion.Lerp(transform.rotation, newRotation, Time.deltaTime * movementTime);
-        cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, newZoom, Time.deltaTime * movementTime);
+        virtualCamera.transform.position = Vector3.Lerp(virtualCamera.transform.position, newPosition, Time.deltaTime * movementTime);
+        virtualCamera.transform.rotation = Quaternion.Lerp(virtualCamera.transform.rotation, newRotation, Time.deltaTime * movementTime);
+        //virtualCamera.transform.position = Vector3.Lerp(virtualCamera.transform.position, newZoom, Time.deltaTime * movementTime);
     }
 
 }

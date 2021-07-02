@@ -15,4 +15,6 @@ public interface ITankState
     void ToAttackState();
 
     void ToChaseState();
+
+    void ToEscapeState();
 }

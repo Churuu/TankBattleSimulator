@@ -1,29 +1,86 @@
-﻿using System.Collections;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Reflection;
 
-public class AttackState : ITankState
+public class EscapeState : ITankState
 {
 
     private StatePatternTank parent;
 
     float timerDelta;
 
-    public AttackState(StatePatternTank parent)
+
+    public EscapeState(StatePatternTank parent)
     {
         this.parent = parent;
     }
 
+    public void OnCollisionEnter(Collision other)
+    {
+        throw new System.NotImplementedException();
+    }
+
     public void OnEnterState()
     {
-        parent.agent.isStopped = true;
+
+    }
+
+    public void ToAttackState()
+    {
+        parent.SwitchCurrentState(parent.attackState);
+    }
+
+    public void ToChaseState()
+    {
+        parent.SwitchCurrentState(parent.chaseState);
+    }
+
+    public void ToEscapeState()
+    {
+        Debug.LogError("Cannot enter same state as current state");
+    }
+
+    public void ToPatrolState()
+    {
+        parent.SwitchCurrentState(parent.patrolState);
     }
 
     public void UpdateState()
     {
-        UpdateStates();
+        EscapeAndHide();
         ShootVisibleEnemies();
+        UpdateStates();
+    }
+
+    private void UpdateStates()
+    {
+        if (parent.visibleTanks.Count < 1)
+            ToPatrolState();
+    }
+
+    void EscapeAndHide() // Cheat way of escaping
+    {
+
+        if (Time.time > timerDelta && parent.agent.remainingDistance < 1.0f)
+        {
+            Vector3 newPatrolPosition = parent.GetRandomPositionInsideBox(Vector3.zero, parent.patrolSize);
+
+            float distanceToEnemy = Vector3.Distance(newPatrolPosition, parent.previousTargetPosition);
+            while (distanceToEnemy < 10.0f)
+            {
+                newPatrolPosition = parent.GetRandomPositionInsideBox(Vector3.zero, parent.patrolSize);
+                distanceToEnemy = Vector3.Distance(newPatrolPosition, parent.previousTargetPosition);
+
+                Debug.Log("Chosen escape position was too close to tank");
+            }
+
+            parent.TryToMoveTank(newPatrolPosition);
+
+            parent.tankHealth++;
+
+            timerDelta = Time.time + parent.patrolCooldownTime;
+        }
     }
 
     void ShootVisibleEnemies()
@@ -69,48 +126,5 @@ public class AttackState : ITankState
             hit.collider.GetComponent<StatePatternTank>().tankHealth -= parent.tankDamage;
             timerDelta = Time.time + parent.shotCooldown;
         }
-    }
-
-    void ClearLog()
-    {
-        var assembly = Assembly.GetAssembly(typeof(UnityEditor.Editor));
-        var type = assembly.GetType("UnityEditor.LogEntries");
-        var method = type.GetMethod("Clear");
-        method.Invoke(new object(), null);
-    }
-
-    void UpdateStates()
-    {
-        if (parent.visibleTanks.Count < 1)
-            ToChaseState();
-
-        //Quick fix for escape
-        if (parent.tankHealth < parent.maxTankHealth / 2)
-            ToEscapeState();
-    }
-
-    public void ToPatrolState()
-    {
-        parent.SwitchCurrentState(parent.patrolState);
-    }
-
-    public void ToAttackState()
-    {
-        Debug.LogError("Cannot transition to current state");
-    }
-
-    public void ToChaseState()
-    {
-        parent.SwitchCurrentState(parent.chaseState);
-    }
-
-    public void OnCollisionEnter(Collision other)
-    {
-
-    }
-
-    public void ToEscapeState()
-    {
-        parent.SwitchCurrentState(parent.escapeState);
     }
 }

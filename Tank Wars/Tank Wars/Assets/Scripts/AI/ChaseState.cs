@@ -4,7 +4,7 @@ using UnityEngine;
 
 
 /*
- * This state is intended for the tank to flank other tanks
+ * This state is intended for the tank to chase tanks escaping
  * 
  * */
 
@@ -20,24 +20,28 @@ public class ChaseState : ITankState
 
     public void OnEnterState()
     {
-
+        parent.TryToMoveTank(parent.previousTargetPosition);
     }
 
     public void UpdateState()
     {
-
+        if (parent.agent.remainingDistance < 5.0f || parent.visibleTanks.Count > 0)
+        {
+            if (parent.visibleTanks.Count > 0)
+                ToAttackState();
+            else
+                ToPatrolState();
+        }
     }
 
     public void ToPatrolState()
     {
-        parent.currentState = parent.patrolState;
-        parent.currentState.OnEnterState();
+        parent.SwitchCurrentState(parent.patrolState);
     }
 
     public void ToAttackState()
     {
-        parent.currentState = parent.attackState;
-        parent.currentState.OnEnterState();
+        parent.SwitchCurrentState(parent.attackState);
     }
 
     public void ToChaseState()
@@ -45,9 +49,14 @@ public class ChaseState : ITankState
         Debug.LogError("Cannot transition to current state");
     }
 
+    public void ToEscapeState()
+    {
+        parent.SwitchCurrentState(parent.escapeState);
+    }
 
     public void OnCollisionEnter(Collision other)
     {
 
     }
+
 }

@@ -11,18 +11,15 @@ public struct AudioClips
 
 public class StatePatternTank : MonoBehaviour
 {
-    public ITankState attackState, chaseState, patrolState;
-    public ITankState currentState;
+    public ITankState attackState, chaseState, patrolState, escapeState;
+    protected ITankState currentState;
 
     public GameObject turret;
     public GameObject explosionEffect;
 
-
     public Vector2 patrolSize;
     public Vector3 respawnPoint;
 
-    [HideInInspector]
-    public NavMeshAgent agent;
     private bool isRotating;
     private AudioSource audioSource;
 
@@ -42,19 +39,25 @@ public class StatePatternTank : MonoBehaviour
 
     public AudioClips audioClips;
 
+
+    [HideInInspector]
+    public NavMeshAgent agent;
+    [HideInInspector]
+    public Vector3 previousTargetPosition;
+
     // Start is called before the first frame update
     void Start()
     {
         patrolState = new PatrolState(this);
         chaseState = new ChaseState(this);
         attackState = new AttackState(this);
+        escapeState = new EscapeState(this);
         agent = GetComponent<NavMeshAgent>();
 
         currentState = patrolState;
         currentState.OnEnterState();
 
         agent.speed = tankSpeed;
-
     }
 
     void Update()
@@ -135,11 +138,46 @@ public class StatePatternTank : MonoBehaviour
         }
     }
 
+    public void SwitchCurrentState(ITankState state)
+    {
+        currentState = state;
+        currentState.OnEnterState();
+    }
+
     public void PlaySound(AudioClip clip, Vector3 position)
     {
         GameObject clipObject = new GameObject("Sound");
         clipObject.transform.position = position;
         PlaySound soundComponent = clipObject.AddComponent<PlaySound>();
         soundComponent.PlayClip(clip);
+    }
+
+    public Collider GetClosestTank()
+    {
+        Collider closestTank = visibleTanks[0];
+        float closestDistance = Mathf.Infinity;
+
+        for (int i = 0; i < visibleTanks.Count; i++)
+        {
+            float distance = Vector3.Distance(transform.position, visibleTanks[i].transform.position);
+            if (distance < closestDistance && visibleTanks[i] != gameObject)
+            {
+                closestDistance = distance;
+                closestTank = visibleTanks[i];
+            }
+        }
+
+        return closestTank;
+    }
+
+    public Vector3 GetRandomPositionInsideBox(Vector3 center, Vector2 boxSize)
+    {
+        Vector3 randomPosition = new Vector3(
+            (Random.value - 0.5f) * boxSize.x,
+            0.0f,
+            (Random.value - 0.5f) * boxSize.y
+            );
+
+        return center + randomPosition;
     }
 }
